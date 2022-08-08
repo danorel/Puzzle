@@ -1,12 +1,29 @@
-import entities.World;
+import entities.*;
 import tests.Input;
 
-import java.util.Arrays;
+import java.util.Comparator;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Scanner;
 
 class Puzzle8 {
-    private static void play() {
+    private static void play(World initialWorld, World goalWorld) {
 
+
+        State initialState = initialWorld.zero();
+        Agent initialAgent = new Agent(initialState);
+
+        Agent currentAgent = initialAgent;
+        World currentWorld = new World(initialWorld);
+
+        Queue<World> frontier = new PriorityQueue<>((o1, o2) -> o2.evaluate() - o1.evaluate());
+
+        for (Action action : Action.values()) {
+            Agent nextAgent = currentAgent.transition(action);
+            if (nextAgent.belongsTo(currentWorld)) {
+                currentWorld = currentWorld.transition(action);
+            }
+        }
     }
 
     public static void main(String[] args) {
@@ -28,8 +45,7 @@ class Puzzle8 {
             }
         }
 
-        World world = new World(board, k);
-        System.out.println(world);
-        System.out.println(world.evaluate());
+        World initialWorld = new World(board, k);
+        World goalWorld = World.complete(k);
     }
 }

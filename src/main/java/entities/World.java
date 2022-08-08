@@ -8,6 +8,10 @@ public class World {
     int[][] board;
     HashMap<Integer, State> index;
 
+    public World(World that) {
+        this(that.board, that.k);
+    }
+
     public World(int[][] board, int k) {
         this.index = new HashMap<>();
         this.k = k;
@@ -18,6 +22,20 @@ public class World {
                 this.index.put(board[i][j], new State(i, j));
             }
         }
+    }
+
+    public static World complete(int k) {
+        int[][] board = new int[k][k];
+        for (int i = 0; i < k; ++i) {
+            for (int j = 0; j < k; ++j) {
+                board[i][j] = i * k + j;
+            }
+        }
+        return new World(board, k);
+    }
+
+    public State zero() {
+        return this.index.get(0);
     }
 
     public int evaluate() {
