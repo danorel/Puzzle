@@ -18,7 +18,9 @@ public class Agent {
         this.state = new State(state);
         this.action = action;
         this.cost = cost;
-        this.parent = new Agent(parent);
+        if (parent != null) {
+            this.parent = new Agent(parent);
+        }
     }
 
     public Agent(Agent that) {
@@ -41,16 +43,16 @@ public class Agent {
     public Agent transition(Action action) {
         switch (action) {
             case Left: {
-                return new Agent(new State(this.state.x, this.state.y - 1), action, cost + 1, new Agent(this.parent));
+                return new Agent(new State(this.state.x, this.state.y - 1), action, cost + 1, new Agent(this));
             }
             case Up: {
-                return new Agent(new State(this.state.x - 1, this.state.y), action, cost + 1, new Agent(this.parent));
+                return new Agent(new State(this.state.x - 1, this.state.y), action, cost + 1, new Agent(this));
             }
             case Right: {
-                return new Agent(new State(this.state.x, this.state.y + 1), action, cost + 1, new Agent(this.parent));
+                return new Agent(new State(this.state.x, this.state.y + 1), action, cost + 1, new Agent(this));
             }
             case Down: {
-                return new Agent(new State(this.state.x + 1, this.state.y), action, cost + 1, new Agent(this.parent));
+                return new Agent(new State(this.state.x + 1, this.state.y), action, cost + 1, new Agent(this));
             }
             default: {
                 throw new RuntimeException("Unknown action: " + action);
@@ -61,6 +63,10 @@ public class Agent {
     public boolean belongsTo(World world) {
         return (this.state.x >= 0 && this.state.x < world.k) &&
                 (this.state.y >= 0 && this.state.y < world.k);
+    }
+
+    public State getState() {
+        return state;
     }
 
     @Override

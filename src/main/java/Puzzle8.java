@@ -1,27 +1,59 @@
-import entities.*;
-import tests.Input;
-
-import java.util.Comparator;
+import java.util.HashSet;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Scanner;
 
+import db.PatternDatabase;
+import entities.*;
+import org.apache.commons.math3.util.Pair;
+
+import tests.Input;
+
 class Puzzle8 {
     private static void play(World initialWorld, World goalWorld) {
-
-
         State initialState = initialWorld.zero();
         Agent initialAgent = new Agent(initialState);
 
-        Agent currentAgent = initialAgent;
-        World currentWorld = new World(initialWorld);
+        HashSet<String> worldDatabase = new HashSet<>();
+        worldDatabase.add(initialWorld.getSerialization());
 
-        Queue<World> frontier = new PriorityQueue<>((o1, o2) -> o2.evaluate() - o1.evaluate());
+        PatternDatabase patternDatabase = new PatternDatabase()
+                .getInstance()
+                .addPattern("1234")
+                .addPattern("5678")
+                .compute(initialAgent, initialWorld);
 
-        for (Action action : Action.values()) {
-            Agent nextAgent = currentAgent.transition(action);
-            if (nextAgent.belongsTo(currentWorld)) {
-                currentWorld = currentWorld.transition(action);
+        Queue<Pair<Agent, World>> frontier = new PriorityQueue<>(
+                (o1, o2) -> (patternDatabase.evaluate(o2.getSecond()) - patternDatabase.evaluate(o1.getSecond())
+        ));
+        frontier.add(new Pair<>(initialAgent, initialWorld));
+
+        while (!frontier.isEmpty()) {
+            Pair<Agent, World> front = frontier.poll();
+
+            Agent currentAgent = front.getFirst();
+            World currentWorld = front.getSecond();
+
+            if (currentWorld.equals(goalWorld)) {
+                System.out.println("WIN! " + currentAgent);
+                return;
+            }
+
+            for (Action action : Action.values()) {
+                Agent nextAgent = currentAgent.transition(action);
+                if (nextAgent == null) {
+                    continue;
+                }
+                if (nextAgent.belongsTo(currentWorld)) {
+                    World nextWorld = currentWorld.transition(currentAgent, action);
+                    if (nextWorld == null) {
+                        continue;
+                    }
+                    if (!worldDatabase.contains(nextWorld.getSerialization())) {
+                        frontier.add(new Pair<>(nextAgent, nextWorld));
+                        worldDatabase.add(nextWorld.getSerialization());
+                    }
+                }
             }
         }
     }
@@ -31,12 +63,12 @@ class Puzzle8 {
 
         int k = scanner.nextInt();
 
-        int[][] board = new int[k][k];
+        char[][] board = new char[k][k];
 
         int x = 1, y = 1;
         while (scanner.hasNext()) {
-            int cell = scanner.nextInt();
-            board[x - 1][y - 1] = cell;
+            int digit = scanner.nextInt();
+            board[x - 1][y - 1] = (char) (48 + digit);
             if (y % k == 0) {
                 ++x;
                 y = 1;
@@ -47,5 +79,7 @@ class Puzzle8 {
 
         World initialWorld = new World(board, k);
         World goalWorld = World.complete(k);
+
+        play(initialWorld, goalWorld);
     }
 }

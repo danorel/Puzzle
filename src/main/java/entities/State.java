@@ -5,7 +5,10 @@ public class State {
     int y;
 
     public State(State that) {
-        this(that.x, that.y);
+        if (that != null) {
+            this.x = that.x;
+            this.y = that.y;
+        }
     }
 
     public State(int x, int y) {
