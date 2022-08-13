@@ -8,6 +8,7 @@ import entities.*;
 import org.apache.commons.math3.util.Pair;
 
 import tests.Input;
+import tests.Output;
 
 class Puzzle8 {
     private static void play(World initialWorld, World goalWorld) {
@@ -35,7 +36,7 @@ class Puzzle8 {
             World currentWorld = front.getSecond();
 
             if (currentWorld.equals(goalWorld)) {
-                System.out.println("WIN! " + currentAgent);
+                Output.printPath(currentAgent);
                 return;
             }
 

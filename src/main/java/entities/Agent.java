@@ -1,10 +1,12 @@
 package entities;
 
+import java.util.Stack;
+
 public class Agent {
-    State state;
-    Action action;
-    int cost;
-    Agent parent;
+    public State state;
+    public Action action;
+    public int cost;
+    public Agent parent;
 
     public Agent() {
         this(null, null, 0, null);
@@ -40,6 +42,43 @@ public class Agent {
         }
     }
 
+    public int size() {
+        if (this.parent == null) {
+            return 0;
+        }
+        int size = 0;
+        Agent thisIterAgent = this.parent;
+        while (thisIterAgent.parent != null) {
+            ++size;
+            thisIterAgent = thisIterAgent.parent;
+        }
+        return size - 1;
+    }
+
+    public Agent reverseAndCopy() {
+        Agent reverse = new Agent();
+
+        Stack<Agent> stack = new Stack<>();
+
+        Agent thatIterAgent = this;
+        while (thatIterAgent != null) {
+            stack.push(thatIterAgent);
+            thatIterAgent = thatIterAgent.parent;
+        }
+
+        Agent thisIterAgent = reverse;
+        while (!stack.empty()) {
+            thatIterAgent = stack.pop();
+            thisIterAgent.state = new State(thatIterAgent.state);
+            thisIterAgent.cost = thatIterAgent.cost;
+            thisIterAgent.action = thatIterAgent.action;
+            thisIterAgent.parent = new Agent();
+            thisIterAgent = thisIterAgent.parent;
+        }
+
+        return reverse;
+    }
+
     public Agent transition(Action action) {
         switch (action) {
             case Left: {
@@ -63,10 +102,6 @@ public class Agent {
     public boolean belongsTo(World world) {
         return (this.state.x >= 0 && this.state.x < world.k) &&
                 (this.state.y >= 0 && this.state.y < world.k);
-    }
-
-    public State getState() {
-        return state;
     }
 
     @Override

@@ -5,7 +5,6 @@ import java.util.stream.IntStream;
 
 import entities.Action;
 import entities.Agent;
-import entities.State;
 import entities.World;
 import org.apache.commons.math3.util.Pair;
 
@@ -89,8 +88,6 @@ public class PatternDatabase {
             return patternScore == null ? 0 : patternScore;
         })).mapToInt(Integer::valueOf);
 
-        OptionalInt maxPatternScore = patternScores.max();
-
-        return maxPatternScore.orElse(0);
+        return patternScores.sum();
     }
 }

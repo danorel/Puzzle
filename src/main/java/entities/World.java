@@ -113,6 +113,20 @@ public class World {
         return serialization.toString();
     }
 
+    public boolean equals(World that) {
+        if (this.k != that.k) {
+            return false;
+        }
+        for (int i = 0; i < k; ++i) {
+            for (int j = 0; j < k; ++j) {
+                if (this.board[i][j] != that.board[i][j]) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
