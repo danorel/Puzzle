@@ -12,7 +12,7 @@ public class PatternDatabase {
 
     private PatternDatabase instance;
 
-    private final HashMap<PatternInstance, HashMap<String, Integer>> index;
+    private final HashMap<Pattern, HashMap<String, Integer>> index;
 
     public PatternDatabase() {
         this.index = new HashMap<>();
@@ -25,21 +25,38 @@ public class PatternDatabase {
         return instance;
     }
 
-    public PatternDatabase addPattern(String pattern) {
-        PatternInstance targetPatternInstance = new PatternInstance(pattern);
-        for (PatternInstance existingPatternInstance : this.index.keySet()) {
-            if (existingPatternInstance.intersects(targetPatternInstance)) {
+    public PatternDatabase addDefaultPatterns(int k) {
+        int batchSize = k - 1;
+        int batchLength = k + 1;
+
+        String[] sequences = new String[batchSize];
+        Arrays.fill(sequences, "");
+
+        for (int i = 0; i < batchSize; ++i) {
+            for (int j = 0; j < batchLength; ++j) {
+                sequences[i] += (i * batchLength + (j + 1)) + ",";
+            }
+            this.addCustomPattern(sequences[i]);
+        }
+
+        return this;
+    }
+
+    public PatternDatabase addCustomPattern(String sequence) {
+        Pattern targetPattern = new Pattern(sequence);
+        for (Pattern existingPattern : this.index.keySet()) {
+            if (existingPattern.intersects(targetPattern)) {
                 throw new RuntimeException("Patterns cannot overlap!");
             }
         }
-        this.index.put(new PatternInstance(pattern), new HashMap<>());
+        this.index.put(new Pattern(sequence), new HashMap<>());
         return this;
     }
 
     public PatternDatabase compute(Agent initialAgent, World initialWorld) {
-        index.forEach(((patternInstance, patternIndex) -> {
+        index.forEach(((pattern, patternIndex) -> {
             Agent patternAgent = new Agent(initialAgent);
-            World patternWorld = new World(initialWorld, patternInstance);
+            World patternWorld = new World(initialWorld, pattern);
             patternIndex.put(patternWorld.getSerialization(), patternWorld.evaluate());
 
             Queue<Pair<Agent, World>> frontier = new LinkedList<>();
@@ -78,10 +95,10 @@ public class PatternDatabase {
         String serialization = world.getSerialization();
 
         IntStream patternScores = index.entrySet().stream().map(((patternEntry) -> {
-            PatternInstance patternInstance = patternEntry.getKey();
+            Pattern pattern = patternEntry.getKey();
             HashMap<String, Integer> patternIndex = patternEntry.getValue();
 
-            String serializationPattern = patternInstance.encrypt(serialization);
+            String serializationPattern = pattern.encrypt(serialization);
 
             Integer patternScore = patternIndex.get(serializationPattern);
 

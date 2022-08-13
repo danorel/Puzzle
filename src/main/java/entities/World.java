@@ -1,15 +1,15 @@
 package entities;
 
-import db.PatternInstance;
+import db.Pattern;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 
 public class World {
-    int k;
-    char[][] board;
-    HashMap<Character, State> index;
+    public int k;
+    public String[][] board;
+    public HashMap<String, State> index;
 
     private int h1 = 0;
     private int h2 = 0;
@@ -18,25 +18,29 @@ public class World {
         this(that.board, that.k, null);
     }
 
-    public World(World that, PatternInstance patternInstance) {
-        this(that.board, that.k, patternInstance);
+    public World(World that, Pattern pattern) {
+        this(that.board, that.k, pattern);
     }
 
-    public World(char[][] board, int k) {
+    public World(String[][] board, int k) {
         this(board, k, null);
     }
 
-    public World(char[][] board, int k, PatternInstance patternInstance) {
+    public World(String[][] board, int k, Pattern pattern) {
         this.index = new HashMap<>();
         this.k = k;
-        this.board = new char[k][k];
+        this.board = new String[k][k];
         // board filling
         for (int i = 0; i < k; ++i) {
             for (int j = 0; j < k; ++j) {
-                if (patternInstance == null) {
+                if (pattern == null) {
                     this.board[i][j] = board[i][j];
                 } else {
-                    this.board[i][j] = (board[i][j] == '0' || patternInstance.contains(board[i][j])) ? board[i][j] : '*';
+                    if (board[i][j].equals("0") || pattern.contains(board[i][j])) {
+                        this.board[i][j] = board[i][j];
+                    } else {
+                        this.board[i][j] = "*";
+                    }
                 }
                 this.index.put(board[i][j], new State(i, j));
             }
@@ -45,11 +49,11 @@ public class World {
         for (int i = 0; i < k; ++i) {
             for (int j = 0; j < k; ++j) {
                 State expectedState = new State(i, j);
-                State actualState = index.get((char) (48 + (i * k + j)));
+                State actualState = index.get(String.valueOf(i * k + j));
                 if (actualState == null) {
                     continue;
                 }
-                h1 += this.board[expectedState.x][expectedState.y] != this.board[actualState.y][actualState.y] ? 1 : 0;
+                h1 += !Objects.equals(this.board[expectedState.x][expectedState.y], this.board[actualState.y][actualState.y]) ? 1 : 0;
                 h2 += Score.manhattanDistance(expectedState, actualState);
             }
         }
@@ -76,10 +80,10 @@ public class World {
     }
 
     public static World complete(int k) {
-        char[][] board = new char[k][k];
+        String[][] board = new String[k][k];
         for (int i = 0; i < k; ++i) {
             for (int j = 0; j < k; ++j) {
-                board[i][j] = (char) (48 + (i * k + j));
+                board[i][j] = String.valueOf(i * k + j);
             }
         }
         return new World(board, k);
@@ -97,17 +101,21 @@ public class World {
         if (i1 < 0 || i1 >= k || j1 < 0 || j1 >= k || i2 < 0 || i2 >= k || j2 < 0 || j2 >= k) {
             return null;
         }
-        char temp = this.board[i1][j1];
+        String temp = this.board[i1][j1];
         this.board[i1][j1] = this.board[i2][j2];
         this.board[i2][j2] = temp;
         return this;
     }
 
     public String getSerialization() {
+        return this.getSerialization(",");
+    }
+
+    public String getSerialization(String delimiter) {
         StringBuilder serialization = new StringBuilder();
         for (int i = 0; i < k; ++i) {
             for (int j = 0; j < k; ++j) {
-                serialization.append(this.board[i][j]);
+                serialization.append(this.board[i][j]).append(delimiter);
             }
         }
         return serialization.toString();
@@ -119,7 +127,7 @@ public class World {
         }
         for (int i = 0; i < k; ++i) {
             for (int j = 0; j < k; ++j) {
-                if (this.board[i][j] != that.board[i][j]) {
+                if (!Objects.equals(this.board[i][j], that.board[i][j])) {
                     return false;
                 }
             }

@@ -1,13 +1,15 @@
-import java.util.*;
-
 import db.PatternDatabase;
-import entities.*;
+import entities.Action;
+import entities.Agent;
+import entities.State;
+import entities.World;
 import org.apache.commons.math3.util.Pair;
-
 import tests.Input;
 import tests.Output;
 
-class Puzzle8 {
+import java.util.*;
+
+class PuzzleKAStar {
     private static void play(World initialWorld, World goalWorld) {
         State initialState = initialWorld.zero();
         Agent initialAgent = new Agent(initialState);
@@ -15,14 +17,8 @@ class Puzzle8 {
         HashSet<String> worldDatabase = new HashSet<>();
         worldDatabase.add(initialWorld.getSerialization());
 
-        PatternDatabase patternDatabase = new PatternDatabase()
-                .getInstance()
-                .addPattern("1234")
-                .addPattern("5678")
-                .compute(initialAgent, initialWorld);
-
         Queue<Pair<Agent, World>> frontier = new PriorityQueue<>(
-                Comparator.comparingInt(o -> patternDatabase.evaluate(o.getSecond())));
+                Comparator.comparingInt(o -> o.getSecond().evaluate()));
         frontier.add(new Pair<>(initialAgent, initialWorld));
 
         while (!frontier.isEmpty()) {
@@ -56,16 +52,16 @@ class Puzzle8 {
     }
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(Input.TEST_1);
+        Scanner scanner = new Scanner(Input.TEST_4x4);
 
         int k = scanner.nextInt();
 
-        char[][] board = new char[k][k];
+        String[][] board = new String[k][k];
 
         int x = 1, y = 1;
         while (scanner.hasNext()) {
-            int digit = scanner.nextInt();
-            board[x - 1][y - 1] = (char) (48 + digit);
+            int number = scanner.nextInt();
+            board[x - 1][y - 1] = String.valueOf(number);
             if (y % k == 0) {
                 ++x;
                 y = 1;
