@@ -1,7 +1,4 @@
-import java.util.HashSet;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.Scanner;
+import java.util.*;
 
 import db.PatternDatabase;
 import entities.*;
@@ -25,8 +22,7 @@ class Puzzle8 {
                 .compute(initialAgent, initialWorld);
 
         Queue<Pair<Agent, World>> frontier = new PriorityQueue<>(
-                (o1, o2) -> (patternDatabase.evaluate(o2.getSecond()) - patternDatabase.evaluate(o1.getSecond())
-        ));
+                Comparator.comparingInt(o -> patternDatabase.evaluate(o.getSecond())));
         frontier.add(new Pair<>(initialAgent, initialWorld));
 
         while (!frontier.isEmpty()) {
