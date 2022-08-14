@@ -33,7 +33,7 @@ public class Input {
             "4\n";
 
     public static final String TEST_5x5 =
-            "4\n" +
+            "5\n" +
             "0\n" +
             "23\n" +
             "8\n" +
@@ -44,7 +44,6 @@ public class Input {
             "10\n" +
             "20\n" +
             "6\n" +
-            "25\n" +
             "15\n" +
             "21\n" +
             "22\n" +

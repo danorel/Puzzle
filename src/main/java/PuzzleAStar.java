@@ -1,25 +1,19 @@
-import java.util.*;
 import org.apache.commons.math3.util.Pair;
 
-import db.*;
 import entities.*;
 import tests.*;
 
-class PuzzleKDisjointPatternDatabase {
-    private static void play(World initialWorld, World goalWorld) {
+import java.util.*;
+
+class PuzzleAStar {
+    private static Agent play(World initialWorld, World goalWorld) {
         State initialState = initialWorld.zero();
         Agent initialAgent = new Agent(initialState);
 
         HashSet<String> worldDatabase = new HashSet<>();
         worldDatabase.add(initialWorld.getSerialization());
 
-        PatternDatabase patternDatabase = new PatternDatabase()
-                .getInstance()
-                .addDefaultPatterns(initialWorld.k)
-                .compute(initialAgent, initialWorld);
-
-        Queue<Pair<Agent, World>> frontier = new PriorityQueue<>(
-                Comparator.comparingInt(o -> o.getFirst().cost + patternDatabase.evaluate(o.getSecond())));
+        Queue<Pair<Agent, World>> frontier = new PriorityQueue<>(Comparator.comparingInt(o -> (o.getFirst().cost + o.getSecond().evaluate())));
         frontier.add(new Pair<>(initialAgent, initialWorld));
 
         while (!frontier.isEmpty()) {
@@ -29,8 +23,7 @@ class PuzzleKDisjointPatternDatabase {
             World currentWorld = front.getSecond();
 
             if (currentWorld.equals(goalWorld)) {
-                Output.printPathAndWorld(currentAgent, initialWorld);
-                return;
+                return currentAgent;
             }
 
             for (Action action : Action.values()) {
@@ -43,14 +36,15 @@ class PuzzleKDisjointPatternDatabase {
                     if (nextWorld == null) {
                         continue;
                     }
-                    String nextSerialization = nextWorld.getSerialization();
-                    if (!worldDatabase.contains(nextSerialization)) {
+                    if (!worldDatabase.contains(nextWorld.getSerialization())) {
                         frontier.add(new Pair<>(nextAgent, nextWorld));
-                        worldDatabase.add(nextSerialization);
+                        worldDatabase.add(nextWorld.getSerialization());
                     }
                 }
             }
         }
+
+        return null;
     }
 
     public static void main(String[] args) {
@@ -74,7 +68,7 @@ class PuzzleKDisjointPatternDatabase {
 
         World initialWorld = new World(board, k);
         World goalWorld = World.complete(k);
-
-        play(initialWorld, goalWorld);
+        Agent goalAgent = play(initialWorld, goalWorld);
+        Output.printPathAndWorld(goalAgent, initialWorld);
     }
 }

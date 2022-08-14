@@ -1,19 +1,32 @@
+import com.google.common.collect.MinMaxPriorityQueue;
+import entities.Action;
+import entities.Agent;
+import entities.State;
+import entities.World;
 import org.apache.commons.math3.util.Pair;
-
-import entities.*;
-import tests.*;
+import tests.Input;
+import tests.Output;
 
 import java.util.*;
 
-class PuzzleKAStar {
-    private static void play(World initialWorld, World goalWorld) {
+class PuzzleSMAStar {
+    private static class MinMaxComparator {
+        public static int compareTo(Pair<Agent, World> o) {
+            return (o.getFirst().getCost() + o.getSecond().evaluate());
+        }
+    }
+
+    private static Agent play(World initialWorld, World goalWorld, int maximumSize) {
         State initialState = initialWorld.zero();
         Agent initialAgent = new Agent(initialState);
 
         HashSet<String> worldDatabase = new HashSet<>();
         worldDatabase.add(initialWorld.getSerialization());
 
-        Queue<Pair<Agent, World>> frontier = new PriorityQueue<>(Comparator.comparingInt(o -> (o.getFirst().cost + o.getSecond().evaluate())));
+        MinMaxPriorityQueue<Pair<Agent, World>> frontier = MinMaxPriorityQueue
+                .orderedBy(Comparator.comparing(MinMaxComparator::compareTo))
+                .maximumSize(maximumSize)
+                .create();
         frontier.add(new Pair<>(initialAgent, initialWorld));
 
         while (!frontier.isEmpty()) {
@@ -23,8 +36,7 @@ class PuzzleKAStar {
             World currentWorld = front.getSecond();
 
             if (currentWorld.equals(goalWorld)) {
-                Output.printPathAndWorld(currentAgent, initialWorld);
-                return;
+                return currentAgent;
             }
 
             for (Action action : Action.values()) {
@@ -43,11 +55,17 @@ class PuzzleKAStar {
                     }
                 }
             }
+
+            if (frontier.size() > maximumSize) {
+                frontier.remove();
+            }
         }
+
+        return null;
     }
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(Input.TEST_4x4);
+        Scanner scanner = new Scanner(Input.TEST_5x5);
 
         int k = scanner.nextInt();
 
@@ -67,7 +85,7 @@ class PuzzleKAStar {
 
         World initialWorld = new World(board, k);
         World goalWorld = World.complete(k);
-
-        play(initialWorld, goalWorld);
+        Agent goalAgent = play(initialWorld, goalWorld, 256);
+        Output.printPathAndWorld(goalAgent, initialWorld);
     }
 }

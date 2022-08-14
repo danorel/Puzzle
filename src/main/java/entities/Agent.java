@@ -112,6 +112,10 @@ public class Agent {
                 (this.state.y >= 0 && this.state.y < world.k);
     }
 
+    public int getCost() {
+        return cost;
+    }
+
     @Override
     public String toString() {
         return "Agent{" +

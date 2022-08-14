@@ -9,8 +9,8 @@ import tests.Output;
 
 import java.util.*;
 
-class PuzzleKIDAStar {
-    private static Agent iterativeDeepening(int depth, World initialWorld, World goalWorld) {
+class PuzzleIDAStar {
+    private static Agent iterativeDeepening(World initialWorld, World goalWorld, int depth) {
         State initialState = initialWorld.zero();
         Agent initialAgent = new Agent(initialState);
 
@@ -53,14 +53,13 @@ class PuzzleKIDAStar {
         return null;
     }
 
-    private static void play(World initialWorld, World goalWorld) {
+    private static Agent play(World initialWorld, World goalWorld) {
         for (int depth = 1; ; ++depth) {
             System.out.println("Search depth: " + depth);
-            Agent goalAgent = iterativeDeepening(depth, initialWorld, goalWorld);
+            Agent goalAgent = iterativeDeepening(initialWorld, goalWorld, depth);
             if (goalAgent != null) {
-                Output.printPathAndWorld(goalAgent, initialWorld);
-                break;
-            };
+                return goalAgent;
+            }
         }
     }
 
@@ -85,7 +84,7 @@ class PuzzleKIDAStar {
 
         World initialWorld = new World(board, k);
         World goalWorld = World.complete(k);
-
-        play(initialWorld, goalWorld);
+        Agent goalAgent = play(initialWorld, goalWorld);
+        Output.printPathAndWorld(goalAgent, initialWorld);
     }
 }
