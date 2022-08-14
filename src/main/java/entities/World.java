@@ -121,6 +121,19 @@ public class World {
         return serialization.toString();
     }
 
+    public String getBoard() {
+        StringBuilder board = new StringBuilder();
+        for (int i = 0; i < k; ++i) {
+            for (int j = 0; j < k; ++j) {
+                board.append(this.board[i][j]).append(" ");
+            }
+            if (i != k - 1) {
+                board.append("\n");
+            }
+        }
+        return board.toString();
+    }
+
     public boolean equals(World that) {
         if (this.k != that.k) {
             return false;

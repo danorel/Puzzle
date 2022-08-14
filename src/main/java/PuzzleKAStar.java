@@ -1,11 +1,7 @@
-import db.PatternDatabase;
-import entities.Action;
-import entities.Agent;
-import entities.State;
-import entities.World;
 import org.apache.commons.math3.util.Pair;
-import tests.Input;
-import tests.Output;
+
+import entities.*;
+import tests.*;
 
 import java.util.*;
 
@@ -17,8 +13,7 @@ class PuzzleKAStar {
         HashSet<String> worldDatabase = new HashSet<>();
         worldDatabase.add(initialWorld.getSerialization());
 
-        Queue<Pair<Agent, World>> frontier = new PriorityQueue<>(
-                Comparator.comparingInt(o -> o.getSecond().evaluate()));
+        Queue<Pair<Agent, World>> frontier = new PriorityQueue<>(Comparator.comparingInt(o -> (o.getFirst().cost + o.getSecond().evaluate())));
         frontier.add(new Pair<>(initialAgent, initialWorld));
 
         while (!frontier.isEmpty()) {
@@ -28,7 +23,7 @@ class PuzzleKAStar {
             World currentWorld = front.getSecond();
 
             if (currentWorld.equals(goalWorld)) {
-                Output.printPath(currentAgent);
+                Output.printPathAndWorld(currentAgent, initialWorld);
                 return;
             }
 
@@ -52,7 +47,7 @@ class PuzzleKAStar {
     }
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(Input.TEST_4x4);
+        Scanner scanner = new Scanner(Input.TEST_3x3);
 
         int k = scanner.nextInt();
 

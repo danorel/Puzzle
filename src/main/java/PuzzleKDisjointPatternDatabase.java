@@ -1,11 +1,9 @@
 import java.util.*;
-
-import db.PatternDatabase;
-import entities.*;
 import org.apache.commons.math3.util.Pair;
 
-import tests.Input;
-import tests.Output;
+import db.*;
+import entities.*;
+import tests.*;
 
 class PuzzleKDisjointPatternDatabase {
     private static void play(World initialWorld, World goalWorld) {

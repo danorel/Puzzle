@@ -26,19 +26,19 @@ public class Agent {
     }
 
     public Agent(Agent that) {
-        Agent thisIter = this;
-        Agent thatIter = that;
-        while (thatIter != null) {
-            if (thatIter.state != null) {
+        if (that != null) {
+            Agent thisIter = this;
+            Agent thatIter = that;
+            while (thatIter != null) {
                 thisIter.state = new State(thatIter.state);
+                thisIter.action = thatIter.action;
+                thisIter.cost = thatIter.cost;
+                if (thatIter.parent != null) {
+                    thisIter.parent = new Agent();
+                }
+                thisIter = thisIter.parent;
+                thatIter = thatIter.parent;
             }
-            thisIter.action = thatIter.action;
-            thisIter.cost = thatIter.cost;
-            if (thatIter.parent != null) {
-                thisIter.parent = new Agent();
-            }
-            thisIter = thisIter.parent;
-            thatIter = thatIter.parent;
         }
     }
 
@@ -58,22 +58,30 @@ public class Agent {
     public Agent reverseAndCopy() {
         Agent reverse = new Agent();
 
-        Stack<Agent> stack = new Stack<>();
+        Stack<Agent> thisStack = new Stack<>();
 
-        Agent thatIterAgent = this;
-        while (thatIterAgent != null) {
-            stack.push(thatIterAgent);
-            thatIterAgent = thatIterAgent.parent;
+        Agent thisIterAgent = this;
+        while (thisIterAgent != null) {
+            thisStack.push(thisIterAgent);
+            thisIterAgent = thisIterAgent.parent;
         }
 
-        Agent thisIterAgent = reverse;
-        while (!stack.empty()) {
-            thatIterAgent = stack.pop();
-            thisIterAgent.state = new State(thatIterAgent.state);
-            thisIterAgent.cost = thatIterAgent.cost;
-            thisIterAgent.action = thatIterAgent.action;
-            thisIterAgent.parent = new Agent();
-            thisIterAgent = thisIterAgent.parent;
+        if (thisStack.empty()) {
+            return reverse;
+        }
+
+        Agent thisParentIterAgent = thisStack.pop();
+        Agent reverseIterAgent = reverse;
+        while (!thisStack.empty()) {
+            thisIterAgent = thisStack.pop();
+            if (thisIterAgent.state != null) {
+                reverseIterAgent.state = new State(thisParentIterAgent.state);
+            }
+            reverseIterAgent.cost = thisParentIterAgent.cost;
+            reverseIterAgent.action = thisIterAgent.action;
+            reverseIterAgent.parent = new Agent();
+            reverseIterAgent = reverseIterAgent.parent;
+            thisParentIterAgent = thisIterAgent;
         }
 
         return reverse;
