@@ -19,7 +19,7 @@ class PuzzleKDisjointPatternDatabase {
                 .compute(initialAgent, initialWorld);
 
         Queue<Pair<Agent, World>> frontier = new PriorityQueue<>(
-                Comparator.comparingInt(o -> patternDatabase.evaluate(o.getSecond())));
+                Comparator.comparingInt(o -> o.getFirst().cost + patternDatabase.evaluate(o.getSecond())));
         frontier.add(new Pair<>(initialAgent, initialWorld));
 
         while (!frontier.isEmpty()) {
@@ -29,7 +29,7 @@ class PuzzleKDisjointPatternDatabase {
             World currentWorld = front.getSecond();
 
             if (currentWorld.equals(goalWorld)) {
-                Output.printPath(currentAgent);
+                Output.printPathAndWorld(currentAgent, initialWorld);
                 return;
             }
 

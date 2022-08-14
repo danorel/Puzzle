@@ -1,12 +1,16 @@
 import org.apache.commons.math3.util.Pair;
 
-import entities.*;
-import tests.*;
+import entities.Action;
+import entities.Agent;
+import entities.State;
+import entities.World;
+import tests.Input;
+import tests.Output;
 
 import java.util.*;
 
-class PuzzleKAStar {
-    private static void play(World initialWorld, World goalWorld) {
+class PuzzleKIDAStar {
+    private static Agent iterativeDeepening(int depth, World initialWorld, World goalWorld) {
         State initialState = initialWorld.zero();
         Agent initialAgent = new Agent(initialState);
 
@@ -23,8 +27,7 @@ class PuzzleKAStar {
             World currentWorld = front.getSecond();
 
             if (currentWorld.equals(goalWorld)) {
-                Output.printPathAndWorld(currentAgent, initialWorld);
-                return;
+                return currentAgent;
             }
 
             for (Action action : Action.values()) {
@@ -38,11 +41,26 @@ class PuzzleKAStar {
                         continue;
                     }
                     if (!worldDatabase.contains(nextWorld.getSerialization())) {
-                        frontier.add(new Pair<>(nextAgent, nextWorld));
-                        worldDatabase.add(nextWorld.getSerialization());
+                        if (nextAgent.cost <= depth) {
+                            frontier.add(new Pair<>(nextAgent, nextWorld));
+                            worldDatabase.add(nextWorld.getSerialization());
+                        }
                     }
                 }
             }
+        }
+
+        return null;
+    }
+
+    private static void play(World initialWorld, World goalWorld) {
+        for (int depth = 1; ; ++depth) {
+            System.out.println("Search depth: " + depth);
+            Agent goalAgent = iterativeDeepening(depth, initialWorld, goalWorld);
+            if (goalAgent != null) {
+                Output.printPathAndWorld(goalAgent, initialWorld);
+                break;
+            };
         }
     }
 
