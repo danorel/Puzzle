@@ -30,7 +30,7 @@ class PuzzleSMAStar {
         frontier.add(new Pair<>(initialAgent, initialWorld));
 
         while (!frontier.isEmpty()) {
-            Pair<Agent, World> front = frontier.poll();
+            Pair<Agent, World> front = frontier.pollFirst();
 
             Agent currentAgent = front.getFirst();
             World currentWorld = front.getSecond();
@@ -65,7 +65,7 @@ class PuzzleSMAStar {
     }
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(Input.TEST_5x5);
+        Scanner scanner = new Scanner(Input.TEST_4x4);
 
         int k = scanner.nextInt();
 
@@ -85,7 +85,7 @@ class PuzzleSMAStar {
 
         World initialWorld = new World(board, k);
         World goalWorld = World.complete(k);
-        Agent goalAgent = play(initialWorld, goalWorld, 256);
+        Agent goalAgent = play(initialWorld, goalWorld, 128);
         Output.printPathAndWorld(goalAgent, initialWorld);
     }
 }
