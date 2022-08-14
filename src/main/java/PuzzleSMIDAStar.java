@@ -9,14 +9,14 @@ import tests.Output;
 
 import java.util.*;
 
-class PuzzleSMAStar {
+class PuzzleSMIDAStar {
     private static class MinMaxComparator {
         public static int compareTo(Pair<Agent, World> o) {
             return (o.getFirst().getCost() + o.getSecond().evaluate());
         }
     }
 
-    private static Agent play(World initialWorld, World goalWorld, int maximumSize) {
+    private static Agent iterativeDeepening(World initialWorld, World goalWorld, int maximumDepth, int maximumSize) {
         State initialState = initialWorld.zero();
         Agent initialAgent = new Agent(initialState);
 
@@ -44,6 +44,9 @@ class PuzzleSMAStar {
                 if (nextAgent == null) {
                     continue;
                 }
+                if (nextAgent.cost > maximumDepth) {
+                    continue;
+                }
                 if (nextAgent.belongsTo(currentWorld)) {
                     World nextWorld = currentWorld.transition(currentAgent, action);
                     if (nextWorld == null) {
@@ -63,8 +66,19 @@ class PuzzleSMAStar {
         return null;
     }
 
+    private static Agent play(World initialWorld, World goalWorld, int maximumSize) {
+        for (double maximumDepth = 1; ; maximumDepth *= Math.sqrt(2)) {
+            int maximumDepthRounded = (int) Math.floor(maximumDepth);
+            System.out.println("Search depth: " + maximumDepthRounded);
+            Agent goalAgent = iterativeDeepening(initialWorld, goalWorld, maximumDepthRounded, maximumSize);
+            if (goalAgent != null) {
+                return goalAgent;
+            }
+        }
+    }
+
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(Input.TEST_5x5);
+        Scanner scanner = new Scanner(Input.TEST_4x4);
 
         int k = scanner.nextInt();
 
@@ -84,7 +98,7 @@ class PuzzleSMAStar {
 
         World initialWorld = new World(board, k);
         World goalWorld = World.complete(k);
-        Agent goalAgent = play(initialWorld, goalWorld, 96);
+        Agent goalAgent = play(initialWorld, goalWorld, 64);
         Output.printPathAndWorld(goalAgent, initialWorld);
     }
 }

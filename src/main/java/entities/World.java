@@ -90,11 +90,11 @@ public class World {
     }
 
     public State zero() {
-        return this.index.get('0');
+        return this.index.get("0");
     }
 
     public int evaluate() {
-        return h2;
+        return h1 + h2;
     }
 
     private World swap(int i1, int j1, int i2, int j2) {
