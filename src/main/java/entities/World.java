@@ -94,7 +94,7 @@ public class World {
     }
 
     public int evaluate() {
-        return h1 + h2;
+        return h1;
     }
 
     private World swap(int i1, int j1, int i2, int j2) {

@@ -35,16 +35,17 @@ class PuzzleIDAStar {
                 if (nextAgent == null) {
                     continue;
                 }
+                if (nextAgent.cost > depth) {
+                    continue;
+                }
                 if (nextAgent.belongsTo(currentWorld)) {
                     World nextWorld = currentWorld.transition(currentAgent, action);
                     if (nextWorld == null) {
                         continue;
                     }
                     if (!worldDatabase.contains(nextWorld.getSerialization())) {
-                        if (nextAgent.cost <= depth) {
-                            frontier.add(new Pair<>(nextAgent, nextWorld));
-                            worldDatabase.add(nextWorld.getSerialization());
-                        }
+                        frontier.add(new Pair<>(nextAgent, nextWorld));
+                        worldDatabase.add(nextWorld.getSerialization());
                     }
                 }
             }
@@ -54,9 +55,9 @@ class PuzzleIDAStar {
     }
 
     private static Agent play(World initialWorld, World goalWorld) {
-        for (int depth = 1; ; ++depth) {
+        for (double depth = 1; ; depth *= Math.sqrt(2)) {
             System.out.println("Search depth: " + depth);
-            Agent goalAgent = iterativeDeepening(initialWorld, goalWorld, depth);
+            Agent goalAgent = iterativeDeepening(initialWorld, goalWorld, (int) depth);
             if (goalAgent != null) {
                 return goalAgent;
             }
